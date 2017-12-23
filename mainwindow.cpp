@@ -54,60 +54,51 @@ int MainWindow::getIndex(int x, int y)
     return y + ( x * FIELD_SIZE ) ;
 }
 
-void MainWindow::moveUp()
+/**
+ * @brief MainWindow::moveCell
+ * @param x coordinate new cell
+ * @param y coordinate new cell
+ * @param x1 coordinate old cell
+ * @param y1 coordinate old cell
+ */
+void MainWindow::moveCell(int x,int y, int x1,int y1)
 {
-    bool changed = false;
-
-    for (int x = FIELD_SIZE - 1; x > 0; x--){
-        for (int y = 0; y <  FIELD_SIZE; y++){
-            if (  (cells.at( getIndex( x-1, y ) )->text() == "" ) &&  (cells.at( getIndex( x, y ) )->text() != "" ))
-            {
-                cells.at( getIndex( x-1, y ) )->setText( cells.at( getIndex( x, y ) )->text() );
-                cells.at( getIndex( x, y ) )->setText("");
-                changed = true;
-            }
-            if (  (cells.at( getIndex( x-1, y ) )->text() != "" ) &&  (cells.at( getIndex( x, y ) )->text() != "" ))
-            {
-                if (  cells.at( getIndex( x-1, y ) )->text() == cells.at( getIndex( x, y ) )->text() )
-                {
-                    cells.at( getIndex( x-1, y ) )->setText( QString::number( cells.at( getIndex( x, y ) )->text().toInt() * 2 ) );
-                    cells.at( getIndex( x, y ) )->setText("");
-                    changed = true;
-                }
-            }
+    if (  (cells.at( getIndex( x, y) )->text() == "" ) &&  (cells.at( getIndex( x1, y1 ) )->text() != "" ))
+    {
+        cells.at( getIndex( x, y ) )->setText( cells.at( getIndex( x1, y1 ) )->text() );
+        cells.at( getIndex( x1, y1 ) )->setText("");
+    }
+    if (  (cells.at( getIndex( x, y ) )->text() != "" ) &&  (cells.at( getIndex( x1, y1 ) )->text() != "" ))
+    {
+        if (  cells.at( getIndex( x, y ) )->text() == cells.at( getIndex( x1, y1 ) )->text() )
+        {
+            cells.at( getIndex( x, y ) )->setText( QString::number( cells.at( getIndex( x1, y1) )->text().toInt() * 2 ) );
+            cells.at( getIndex( x1, y1 ) )->setText("");
         }
-    }
-    if (!changed)
-    {
-        qDebug()<< "can't move!";
-    }
-    if (isFindEmptyCell())
-    {
-        this->addTile();
     }
 }
 
+void MainWindow::moveUp()
+{
+    for (int x = FIELD_SIZE - 1; x > 0; x--){
+        for (int y = 0; y <  FIELD_SIZE; y++){
+            moveCell(x-1, y , x, y );
+        }
+
+        if (isFindEmptyCell())
+        {
+            this->addTile();
+        }
+    }
+}
 void MainWindow::moveDown()
 {
     for (int x = 0; x < FIELD_SIZE - 1; x++){
         for (int y = 0; y <  FIELD_SIZE; y++){
-            if (  (cells.at( getIndex( x+1, y ) )->text() == "" ) &&  (cells.at( getIndex( x, y ) )->text() != "" ))
-            {
-                cells.at( getIndex( x+1, y ) )->setText( cells.at( getIndex( x, y ) )->text() );
-                cells.at( getIndex( x, y ) )->setText("");
-                //changed = true;
-            }
-            if (  (cells.at( getIndex( x+1, y ) )->text() != "" ) &&  (cells.at( getIndex( x, y ) )->text() != "" ))
-            {
-                if (  cells.at( getIndex( x+1, y ) )->text() == cells.at( getIndex( x, y ) )->text() )
-                {
-                    cells.at( getIndex( x+1, y ) )->setText( QString::number( cells.at( getIndex( x, y ) )->text().toInt() * 2 ) );
-                    cells.at( getIndex( x, y ) )->setText("");
-                  //  changed = true;
-                }
-            }
+            moveCell(x+1, y , x, y );
         }
     }
+
     if (isFindEmptyCell())
     {
         this->addTile();
