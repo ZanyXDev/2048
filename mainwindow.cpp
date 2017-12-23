@@ -178,6 +178,7 @@ bool MainWindow::isFindEmptyCell()
 // ----------------------- PUBLIC SLOTS -----------------------------------
 void MainWindow::startGame()
 {
+    this->clearGameField();
     this->addTile();
 }
 
