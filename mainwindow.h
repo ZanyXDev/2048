@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QVector>
 #include <QLabel>
+#include <QKeyEvent>
+#include <QDebug>
 #include <math.h>
 
 namespace Ui {
@@ -14,7 +16,7 @@ class MainWindow;
 // @TODO replace define to setter and getter. Save values to preference? change from menu
 
 #define FIELD_SIZE 4
-#define MAX_POW 11
+#define MAX_POW 3
 
 class MainWindow : public QMainWindow
 {
@@ -30,14 +32,18 @@ public slots:
 private:
     Ui::MainWindow *ui;
     QVector <QLabel *> cells;
+
     void createGameField();
     void addTile();
+    void moveUp();
+    void clearGameField();
+    QString getTwoInRandomPow();
+    bool isFindEmptyCell();
+    int getRandomIndex();
+    int getIndex(int x, int y);
 
 protected:
-    int getRandomIndex();
-    QString getTwoInRandomPow();
-    void clearGameField();
-    bool isFindEmptyCell();
+    bool eventFilter(QObject *obj, QEvent *event);
 };
 
 #endif // MAINWINDOW_H
