@@ -37,6 +37,8 @@ private:
     void addTile();
     void moveUp();
     void moveDown();
+    void moveLeft();
+    void moveRigth();
     void moveCell(int x,int y, int x1,int y1);
     void clearGameField();
     QString getTwoInRandomPow();

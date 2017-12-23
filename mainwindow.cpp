@@ -84,13 +84,14 @@ void MainWindow::moveUp()
         for (int y = 0; y <  FIELD_SIZE; y++){
             moveCell(x-1, y , x, y );
         }
-
-        if (isFindEmptyCell())
-        {
-            this->addTile();
-        }
     }
+    if (isFindEmptyCell())
+    {
+        this->addTile();
+    }
+
 }
+
 void MainWindow::moveDown()
 {
     for (int x = 0; x < FIELD_SIZE - 1; x++){
@@ -99,6 +100,34 @@ void MainWindow::moveDown()
         }
     }
 
+    if (isFindEmptyCell())
+    {
+        this->addTile();
+    }
+}
+
+void MainWindow::moveLeft()
+{
+    for (int x = 0; x < FIELD_SIZE; x++){
+        for (int y = FIELD_SIZE - 1; y > 0; y--){
+            moveCell(x, y-1 , x, y );
+        }
+    }
+
+    if (isFindEmptyCell())
+    {
+        this->addTile();
+    }
+
+}
+
+void MainWindow::moveRigth()
+{
+    for (int x = 0; x < FIELD_SIZE; x++){
+        for (int y = 0 ; y < FIELD_SIZE - 1; y++){
+            moveCell(x, y+1 , x, y );
+        }
+    }
     if (isFindEmptyCell())
     {
         this->addTile();
@@ -167,6 +196,12 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
             break;
         case Qt::Key_Down:
             this->moveDown();
+            break;
+        case Qt::Key_Left:
+            this->moveLeft();
+            break;
+        case Qt::Key_Right:
+            this->moveRigth();
             break;
         default:
             break;
