@@ -36,6 +36,7 @@ private:
     void createGameField();
     void addTile();
     void moveUp();
+     void moveDown();
     void clearGameField();
     QString getTwoInRandomPow();
     bool isFindEmptyCell();

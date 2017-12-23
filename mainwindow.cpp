@@ -81,6 +81,37 @@ void MainWindow::moveUp()
     {
         qDebug()<< "can't move!";
     }
+    if (isFindEmptyCell())
+    {
+        this->addTile();
+    }
+}
+
+void MainWindow::moveDown()
+{
+    for (int x = 0; x < FIELD_SIZE - 1; x++){
+        for (int y = 0; y <  FIELD_SIZE; y++){
+            if (  (cells.at( getIndex( x+1, y ) )->text() == "" ) &&  (cells.at( getIndex( x, y ) )->text() != "" ))
+            {
+                cells.at( getIndex( x+1, y ) )->setText( cells.at( getIndex( x, y ) )->text() );
+                cells.at( getIndex( x, y ) )->setText("");
+                //changed = true;
+            }
+            if (  (cells.at( getIndex( x+1, y ) )->text() != "" ) &&  (cells.at( getIndex( x, y ) )->text() != "" ))
+            {
+                if (  cells.at( getIndex( x+1, y ) )->text() == cells.at( getIndex( x, y ) )->text() )
+                {
+                    cells.at( getIndex( x+1, y ) )->setText( QString::number( cells.at( getIndex( x, y ) )->text().toInt() * 2 ) );
+                    cells.at( getIndex( x, y ) )->setText("");
+                  //  changed = true;
+                }
+            }
+        }
+    }
+    if (isFindEmptyCell())
+    {
+        this->addTile();
+    }
 }
 
 int MainWindow::getRandomIndex()
@@ -121,7 +152,6 @@ bool MainWindow::isFindEmptyCell()
         }
     }
     return false;
-
 }
 
 
@@ -143,7 +173,9 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         switch (keyEvent->key()) {
         case Qt::Key_Up:
             this->moveUp();
-            this->addTile();
+            break;
+        case Qt::Key_Down:
+            this->moveDown();
             break;
         default:
             break;
