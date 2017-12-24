@@ -26,13 +26,18 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+signals:
+    void valueScoreChanged(int newValue);
+
 public slots:
     void startGame(); // @TODO add parametr int = size {4,5,6} size of game filed
     void keyReleaseEvent(QKeyEvent *event);
 
+
 private:
     Ui::MainWindow *ui;
     QVector <QLabel *> cells;
+    int mScore;
 
     void createGameField();
     void addTile();
@@ -50,7 +55,7 @@ private:
     int getRandomIndex();
     int getIndex(int x, int y);
     void printDebugField(QString direction);
-
+    void addScore(int score);
 };
 
 #endif // MAINWINDOW_H

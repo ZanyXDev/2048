@@ -8,7 +8,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->statusBar->showMessage("Свайп для передвижения плиток. 2 + 2 = 4. Собери 2048.");
     this->createGameField();
-    QObject::connect(ui->newGameBtn,SIGNAL(clicked()),this,SLOT(startGame()));
+    connect(ui->newGameBtn,SIGNAL(clicked()),this,SLOT(startGame()));
+    connect(this,SIGNAL(valueScoreChanged(int)),ui->scoreCounter,SLOT(display(int)));
 }
 
 MainWindow::~MainWindow()
@@ -29,6 +30,7 @@ void MainWindow::createGameField()
             ui->gridGame->addWidget(item,x,y);
         }
     }
+    this->mScore = 0;
 }
 
 void MainWindow::addTile()
@@ -122,7 +124,10 @@ bool MainWindow::moveCell(int newX,int newY, int oldX,int oldY)
 
         if (cells.at( getIndex( newX, newY ) )->text() == cells.at( getIndex( oldX, oldY ) )->text() )
         {
-            cells.at( getIndex( newX, newY ) )->setText( QString::number( cells.at( getIndex( oldX, oldY) )->text().toInt() * 2 ) );
+            int value = cells.at( getIndex( oldX, oldY) )->text().toInt() * 2;
+            this->addScore(value);
+
+            cells.at( getIndex( newX, newY ) )->setText( QString::number( value ) );
             cells.at( getIndex( oldX, oldY ) )->setText("");
             isMoved = true;
         }
@@ -292,10 +297,16 @@ void MainWindow::printDebugField(QString direction)
     qDebug() << direction;
 
     for (int row = 0;  row <  FIELD_SIZE; row++){
-       qDebug() << "|"<< cells.at( getIndex( row, 0) )->text() << "|"<< cells.at( getIndex( row, 1) )->text()
-                << "|"<< cells.at( getIndex( row, 2) )->text() << "|"<< cells.at( getIndex( row, 3) )->text();
+        qDebug() << "|"<< cells.at( getIndex( row, 0) )->text() << "|"<< cells.at( getIndex( row, 1) )->text()
+                 << "|"<< cells.at( getIndex( row, 2) )->text() << "|"<< cells.at( getIndex( row, 3) )->text();
     }
 
+}
+
+void MainWindow::addScore(int score)
+{
+   mScore += score;
+   emit valueScoreChanged(mScore);
 }
 
 // ----------------------- PUBLIC SLOTS -----------------------------------
