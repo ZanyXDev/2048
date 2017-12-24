@@ -39,12 +39,16 @@ private:
     void moveDown();
     void moveLeft();
     void moveRigth();
-    void moveCell(int x,int y, int x1,int y1);
+    void paintField();
+    bool moveCell(int x,int y, int x1,int y1);
+    bool moveCellInColumn(int col,bool direction);
+    bool moveCellInRow(int row,bool direction);
     void clearGameField();
     QString getTwoInRandomPow();
     bool isFindEmptyCell();
     int getRandomIndex();
     int getIndex(int x, int y);
+
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);

@@ -48,10 +48,55 @@ void MainWindow::addTile()
 
 }
 
-
-int MainWindow::getIndex(int x, int y)
+void MainWindow::paintField()
 {
-    return y + ( x * FIELD_SIZE ) ;
+    foreach (QLabel *item, cells) {
+
+
+        switch (item->text().toInt()) {
+        case 0:
+            item->setStyleSheet("QLabel { background-color: #cdc1b5; color: black; font:20pt; font-weight:400; border-radius: 5px;}");
+            break;
+        case 2:
+            item->setStyleSheet("QLabel { background-color: #eee4da; color: black; font:20pt; font-weight:400; border-radius: 5px;}");
+            break;
+        case 4:
+            item->setStyleSheet("QLabel { background-color: #eddfc4; color: black; font:20pt; font-weight:400;border-radius: 5px;}");
+            break;
+        case 8:
+            item->setStyleSheet("QLabel { background-color: #f4b17a; color: white; font:20pt; font-weight:400;border-radius: 5px;}");
+            break;
+        case 16:
+            item->setStyleSheet("QLabel { background-color: #f79663; color: white; font:20pt; font-weight:400;border-radius: 5px;}");
+            break;
+        case 32:
+            item->setStyleSheet("QLabel { background-color: #f67d62; color: white; font:20pt; font-weight:400;border-radius: 5px;}");
+            break;
+        case 64:
+            item->setStyleSheet("QLabel { background-color: #f65e39; color: white; font:20pt; font-weight:400; border-radius: 5px;}");
+            break;
+        case 128:
+            item->setStyleSheet("QLabel { background-color: #edce73; color: white; font:20pt; font-weight:400;border-radius: 5px;}");
+            break;
+        case 256:
+            item->setStyleSheet("QLabel { background-color: #e9cf58; color: white; font:20pt; font-weight:400;border-radius: 5px;}");
+            break;
+        case 512:
+            item->setStyleSheet("QLabel { background-color: #edc651; color: white; font:20pt; font-weight:400;border-radius: 5px;}");
+            break;
+        case 1024:
+            item->setStyleSheet("QLabel { background-color: #eec744; color: white; font:20pt; font-weight:400;border-radius: 5px;}");
+            break;
+        case 2048:
+            item->setStyleSheet("QLabel { background-color: #edca64; color: white; font:20pt; font-weight:400;border-radius: 5px;}");
+            break;
+        }
+    }
+}
+
+int MainWindow::getIndex(int row, int col)
+{
+    return col + ( row * FIELD_SIZE ) ;
 }
 
 /**
@@ -61,77 +106,142 @@ int MainWindow::getIndex(int x, int y)
  * @param x1 coordinate old cell
  * @param y1 coordinate old cell
  */
-void MainWindow::moveCell(int x,int y, int x1,int y1)
+bool MainWindow::moveCell(int newX,int newY, int oldX,int oldY)
 {
-    if (  (cells.at( getIndex( x, y) )->text() == "" ) &&  (cells.at( getIndex( x1, y1 ) )->text() != "" ))
+    // qDebug() << "old index: " << getIndex( oldX, oldY ) << "new index: "<< getIndex( newX, newY );
+    //qDebug() << "old value: " << cells.at( getIndex( oldX, oldY ) )->text()  << "new value: " << cells.at( getIndex( newX, newY ) )->text();
+    bool isMoved = false;
+    if (cells.at( getIndex( oldX, oldY ) )->text() != "" )
     {
-        cells.at( getIndex( x, y ) )->setText( cells.at( getIndex( x1, y1 ) )->text() );
-        cells.at( getIndex( x1, y1 ) )->setText("");
-    }
-    if (  (cells.at( getIndex( x, y ) )->text() != "" ) &&  (cells.at( getIndex( x1, y1 ) )->text() != "" ))
-    {
-        if (  cells.at( getIndex( x, y ) )->text() == cells.at( getIndex( x1, y1 ) )->text() )
+        // need move cell
+        if (  cells.at( getIndex( newX, newY) )->text() == ""  )
         {
-            cells.at( getIndex( x, y ) )->setText( QString::number( cells.at( getIndex( x1, y1) )->text().toInt() * 2 ) );
-            cells.at( getIndex( x1, y1 ) )->setText("");
+            cells.at( getIndex( newX, newY ) )->setText( cells.at( getIndex( oldX, oldY ) )->text() );
+            cells.at( getIndex( oldX, oldY ) )->setText("");
+            isMoved = true;
+        }
+
+        if (cells.at( getIndex( newX, newY ) )->text() == cells.at( getIndex( oldX, oldY ) )->text() )
+        {
+            cells.at( getIndex( newX, newY ) )->setText( QString::number( cells.at( getIndex( oldX, oldY) )->text().toInt() * 2 ) );
+            cells.at( getIndex( oldX, oldY ) )->setText("");
+            isMoved = true;
         }
     }
+    return isMoved;
+}
+
+bool MainWindow::moveCellInRow(int row,bool direction)
+{
+    bool isMoved = false;
+    if (direction)
+    {
+        // move up
+        for (int col = 0; col < FIELD_SIZE-1; col++){
+            if (moveCell( row, col, row, col+1 ))
+            {
+                isMoved = true;
+            }
+        }
+    }else{
+        // move down
+        for (int col = FIELD_SIZE-1; col > 0 ; col--){
+            if (moveCell( row, col, row, col-1 ))
+            {
+                isMoved = true;
+            }
+        }
+    }
+    return isMoved;
+}
+
+bool MainWindow::moveCellInColumn(int col,bool direction)
+{
+    bool isMoved = false;
+    if (direction)
+    {
+        // move up
+        for (int row = 0; row < FIELD_SIZE-1; row++){
+            if (moveCell( row, col, row+1, col ))
+            {
+                isMoved = true;
+            }
+        }
+    }else{
+        // move down
+        for (int row = FIELD_SIZE-1; row > 0 ; row--){
+            if (moveCell( row, col, row-1, col ))
+            {
+                isMoved = true;
+            }
+        }
+    }
+    return isMoved;
 }
 
 void MainWindow::moveUp()
 {
-    for (int x = FIELD_SIZE - 1; x > 0; x--){
-        for (int y = 0; y <  FIELD_SIZE; y++){
-            moveCell(x-1, y , x, y );
-        }
+    for (int col = 0;  col <  FIELD_SIZE; col++){
+        bool isMoved = false;
+        do {
+            isMoved = moveCellInColumn (col, true);
+        }while (isMoved);
     }
+
     if (isFindEmptyCell())
     {
         this->addTile();
     }
-
+this->paintField();
 }
 
 void MainWindow::moveDown()
 {
-    for (int x = 0; x < FIELD_SIZE - 1; x++){
-        for (int y = 0; y <  FIELD_SIZE; y++){
-            moveCell(x+1, y , x, y );
-        }
+
+    for (int col = 0; col <  FIELD_SIZE; col++){
+        bool isMoved = false;
+        do {
+            isMoved = moveCellInColumn (col, false);
+        }while (isMoved);
     }
 
     if (isFindEmptyCell())
     {
         this->addTile();
     }
+    this->paintField();
 }
 
 void MainWindow::moveLeft()
 {
-    for (int x = 0; x < FIELD_SIZE; x++){
-        for (int y = FIELD_SIZE - 1; y > 0; y--){
-            moveCell(x, y-1 , x, y );
-        }
+    for (int row = 0;  row <  FIELD_SIZE; row++){
+        bool isMoved = false;
+        do {
+            isMoved = moveCellInRow (row, true);
+        }while (isMoved);
     }
 
     if (isFindEmptyCell())
     {
         this->addTile();
     }
-
+this->paintField();
 }
 
 void MainWindow::moveRigth()
 {
-    for (int x = 0; x < FIELD_SIZE; x++){
-        for (int y = 0 ; y < FIELD_SIZE - 1; y++){
-            moveCell(x, y+1 , x, y );
-        }
+    for (int row = 0;  row <  FIELD_SIZE; row++){
+        bool isMoved = false;
+        do {
+            isMoved = moveCellInRow (row, false);
+        }while (isMoved);
     }
+
     if (isFindEmptyCell())
     {
         this->addTile();
     }
+    this->paintField();
 }
 
 int MainWindow::getRandomIndex()
@@ -148,9 +258,9 @@ QString MainWindow::getTwoInRandomPow()
     {
         new_step = 1;
     }
-    int value = (int) pow(2,new_step);
-
-    return QString::number(value);
+    //int value = (int) pow(2,new_step);
+    //qDebug() << "random digit:" << value;
+    return QString::number((int) pow(2,new_step));
 
 }
 
@@ -180,6 +290,7 @@ void MainWindow::startGame()
 {
     this->clearGameField();
     this->addTile();
+    this->paintField();
 }
 
 // ----------------------- Protected  --------------------------------------
@@ -190,7 +301,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     {
 
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        qDebug() << "key " << keyEvent->key() << "from" << obj;
+        //qDebug() << "key " << keyEvent->key() << "from" << obj;
         switch (keyEvent->key()) {
         case Qt::Key_Up:
             this->moveUp();
@@ -208,6 +319,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
             break;
         }
     }
+
     return QObject::eventFilter(obj, event);
 }
 
