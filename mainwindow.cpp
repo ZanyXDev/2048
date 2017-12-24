@@ -5,7 +5,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    qApp->installEventFilter(this);
     ui->setupUi(this);
     this->createGameField();
     QObject::connect(ui->newGameBtn,SIGNAL(clicked()),this,SLOT(startGame()));
@@ -29,7 +28,6 @@ void MainWindow::createGameField()
             ui->gridGame->addWidget(item,x,y);
         }
     }
-    //qDebug() << "cells size:" <<cells.size();
 }
 
 void MainWindow::addTile()
@@ -181,6 +179,7 @@ bool MainWindow::moveCellInColumn(int col,bool direction)
 
 void MainWindow::moveUp()
 {
+    printDebugField("move_up");
     for (int col = 0;  col <  FIELD_SIZE; col++){
         bool isMoved = false;
         do {
@@ -192,12 +191,13 @@ void MainWindow::moveUp()
     {
         this->addTile();
     }
-this->paintField();
+    this->paintField();
+
 }
 
 void MainWindow::moveDown()
 {
-
+    printDebugField("move_down");
     for (int col = 0; col <  FIELD_SIZE; col++){
         bool isMoved = false;
         do {
@@ -210,10 +210,12 @@ void MainWindow::moveDown()
         this->addTile();
     }
     this->paintField();
+
 }
 
 void MainWindow::moveLeft()
 {
+    printDebugField("move_left");
     for (int row = 0;  row <  FIELD_SIZE; row++){
         bool isMoved = false;
         do {
@@ -225,11 +227,13 @@ void MainWindow::moveLeft()
     {
         this->addTile();
     }
-this->paintField();
+    this->paintField();
+
 }
 
 void MainWindow::moveRigth()
 {
+    printDebugField("move_rigth");
     for (int row = 0;  row <  FIELD_SIZE; row++){
         bool isMoved = false;
         do {
@@ -242,6 +246,7 @@ void MainWindow::moveRigth()
         this->addTile();
     }
     this->paintField();
+
 }
 
 int MainWindow::getRandomIndex()
@@ -258,10 +263,7 @@ QString MainWindow::getTwoInRandomPow()
     {
         new_step = 1;
     }
-    //int value = (int) pow(2,new_step);
-    //qDebug() << "random digit:" << value;
     return QString::number((int) pow(2,new_step));
-
 }
 
 void MainWindow::clearGameField()
@@ -284,6 +286,16 @@ bool MainWindow::isFindEmptyCell()
     return false;
 }
 
+void MainWindow::printDebugField(QString direction)
+{
+    qDebug() << direction;
+
+    for (int row = 0;  row <  FIELD_SIZE; row++){
+       qDebug() << "|"<< cells.at( getIndex( row, 0) )->text() << "|"<< cells.at( getIndex( row, 1) )->text()
+                << "|"<< cells.at( getIndex( row, 2) )->text() << "|"<< cells.at( getIndex( row, 3) )->text();
+    }
+
+}
 
 // ----------------------- PUBLIC SLOTS -----------------------------------
 void MainWindow::startGame()
@@ -293,16 +305,13 @@ void MainWindow::startGame()
     this->paintField();
 }
 
-// ----------------------- Protected  --------------------------------------
-
-bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+void MainWindow::keyReleaseEvent(QKeyEvent *event)
 {
-    if (event->type() == QEvent::KeyPress)
+    qDebug() << Q_FUNC_INFO;
+    qDebug("MainWindow keyPressEvent %d", event->key());
+    if (event->type() == QEvent::KeyRelease)
     {
-
-        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        //qDebug() << "key " << keyEvent->key() << "from" << obj;
-        switch (keyEvent->key()) {
+        switch (event->key()) {
         case Qt::Key_Up:
             this->moveUp();
             break;
@@ -318,8 +327,10 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         default:
             break;
         }
+        return;
     }
 
-    return QObject::eventFilter(obj, event);
+    // allow for the default handling of the key
+    QMainWindow::keyPressEvent(event); // aka the base class implementati
 }
 

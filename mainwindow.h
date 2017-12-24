@@ -28,6 +28,7 @@ public:
 
 public slots:
     void startGame(); // @TODO add parametr int = size {4,5,6} size of game filed
+    void keyReleaseEvent(QKeyEvent *event);
 
 private:
     Ui::MainWindow *ui;
@@ -48,10 +49,8 @@ private:
     bool isFindEmptyCell();
     int getRandomIndex();
     int getIndex(int x, int y);
+    void printDebugField(QString direction);
 
-
-protected:
-    bool eventFilter(QObject *obj, QEvent *event);
 };
 
 #endif // MAINWINDOW_H
