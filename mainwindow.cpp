@@ -6,6 +6,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->statusBar->showMessage("Свайп для передвижения плиток. 2 + 2 = 4. Собери 2048.");
     this->createGameField();
     QObject::connect(ui->newGameBtn,SIGNAL(clicked()),this,SLOT(startGame()));
 }

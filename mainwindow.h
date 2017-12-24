@@ -13,9 +13,9 @@ class MainWindow;
 }
 
 
-// @TODO replace define to setter and getter. Save values to preference? change from menu
-
+// @ToDo replace define to setter and getter. Save values to preference? change from menu
 #define FIELD_SIZE 4
+// @ToDo replace define to menu item
 #define MAX_POW 3
 
 class MainWindow : public QMainWindow
