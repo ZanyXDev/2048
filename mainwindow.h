@@ -56,6 +56,7 @@ private:
     void clearGameField();
     QString getTwoInRandomPow();
     bool isFindCell(QString cType);
+    int findMaxCell();
     int getRandomIndex();
     int getIndex(int x, int y);
     void printDebugField(QString direction);
