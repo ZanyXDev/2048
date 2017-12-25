@@ -27,16 +27,19 @@ public:
     ~MainWindow();
 
 signals:
+    void canUndo(bool state);
     void valueScoreChanged(int newValue);
 
 public slots:
     void startGame(); // @TODO add parametr int = size {4,5,6} size of game filed
+    void undo();
     void keyReleaseEvent(QKeyEvent *event);
 
 
 private:
     Ui::MainWindow *ui;
     QVector <QLabel *> cells;
+    QVector <int> undoCells;
     int mScore;
 
     void createGameField();
@@ -47,15 +50,18 @@ private:
     void moveRigth();
     void paintField();
     bool moveCell(int x,int y, int x1,int y1);
-    bool moveCellInColumn(int col,bool direction);
-    bool moveCellInRow(int row,bool direction);
+    void moveCellsHorizontal(bool direction);
+    void moveCellsVertical(bool direction);
+
     void clearGameField();
     QString getTwoInRandomPow();
-    bool isFindEmptyCell();
+    bool isFindCell(QString cType);
+    int findMaxCell();
     int getRandomIndex();
     int getIndex(int x, int y);
     void printDebugField(QString direction);
     void addScore(int score);
+    void saveStateForUndo();
 };
 
 #endif // MAINWINDOW_H

@@ -123,11 +123,22 @@
         </widget>
        </item>
        <item row="3" column="0">
-        <widget class="QPushButton" name="newGameBtn">
-         <property name="text">
-          <string>Новая игра</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QPushButton" name="newGameBtn">
+           <property name="text">
+            <string>Новая игра</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="undoStepBtn">
+           <property name="text">
+            <string>Отменить</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </item>
@@ -176,6 +187,7 @@
     <addaction name="separator"/>
     <addaction name="action_3"/>
     <addaction name="separator"/>
+    <addaction name="action"/>
     <addaction name="separator"/>
     <addaction name="action_7"/>
    </widget>
@@ -207,6 +219,11 @@
   <action name="action_7">
    <property name="text">
     <string>Выход</string>
+   </property>
+  </action>
+  <action name="action">
+   <property name="text">
+    <string>Отменить ход</string>
    </property>
   </action>
  </widget>
