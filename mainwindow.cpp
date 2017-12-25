@@ -7,9 +7,16 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->statusBar->showMessage("Свайп для передвижения плиток. 2 + 2 = 4. Собери 2048.");
+
     this->createGameField();
+
     connect(ui->newGameBtn,SIGNAL(clicked()),this,SLOT(startGame()));
     connect(this,SIGNAL(valueScoreChanged(int)),ui->scoreCounter,SLOT(display(int)));
+
+    connect(ui->undoStepBtn,SIGNAL(clicked()),this,SLOT(undo()));
+    connect(this,SIGNAL(canUndo(bool)),ui->undoStepBtn,SLOT(setEnabled(bool)));
+
+    emit canUndo(false);
 }
 
 MainWindow::~MainWindow()
@@ -25,12 +32,14 @@ void MainWindow::createGameField()
             QLabel *item = new QLabel("");
             item->setAlignment(Qt::AlignCenter);
             item->setStyleSheet("QLabel { background-color: #cdc1b5; color: black; font:20pt; font-weight:400; border-radius: 5px;}");
-            cells.append(item);
+            cells.append(item);            
+            undoCells.append(0);
 
             ui->gridGame->addWidget(item,x,y);
         }
     }
     this->mScore = 0;
+
 }
 
 void MainWindow::addTile()
@@ -52,8 +61,6 @@ void MainWindow::addTile()
 void MainWindow::paintField()
 {
     foreach (QLabel *item, cells) {
-
-
         switch (item->text().toInt()) {
         case 0:
             item->setStyleSheet("QLabel { background-color: #cdc1b5; color: black; font:20pt; font-weight:400; border-radius: 5px;}");
@@ -186,6 +193,8 @@ bool MainWindow::moveCellInColumn(int col,bool direction)
 void MainWindow::moveUp()
 {
     printDebugField("move_up");
+    this->saveStateForUndo();
+    emit canUndo(true);
     for (int col = 0;  col <  FIELD_SIZE; col++){
         bool isMoved = false;
         do {
@@ -204,6 +213,8 @@ void MainWindow::moveUp()
 void MainWindow::moveDown()
 {
     printDebugField("move_down");
+    this->saveStateForUndo();
+    emit canUndo(true);
     for (int col = 0; col <  FIELD_SIZE; col++){
         bool isMoved = false;
         do {
@@ -222,6 +233,8 @@ void MainWindow::moveDown()
 void MainWindow::moveLeft()
 {
     printDebugField("move_left");
+    this->saveStateForUndo();
+    emit canUndo(true);
     for (int row = 0;  row <  FIELD_SIZE; row++){
         bool isMoved = false;
         do {
@@ -240,6 +253,8 @@ void MainWindow::moveLeft()
 void MainWindow::moveRigth()
 {
     printDebugField("move_rigth");
+    this->saveStateForUndo();
+    emit canUndo(true);
     for (int row = 0;  row <  FIELD_SIZE; row++){
         bool isMoved = false;
         do {
@@ -309,6 +324,16 @@ void MainWindow::addScore(int score)
    emit valueScoreChanged(mScore);
 }
 
+void MainWindow::saveStateForUndo()
+{
+    for (int col = 0;  col <  FIELD_SIZE; col++){
+         for (int row = 0;  row <  FIELD_SIZE; row++){
+             int index = getIndex( row, col );
+             undoCells.replace( index, cells.at( index )->text().toInt() );
+         }
+    }
+}
+
 // ----------------------- PUBLIC SLOTS -----------------------------------
 void MainWindow::startGame()
 {
@@ -317,6 +342,24 @@ void MainWindow::startGame()
     this->paintField();
 }
 
+void MainWindow::undo()
+{
+    for (int col = 0;  col <  FIELD_SIZE; col++){
+         for (int row = 0;  row <  FIELD_SIZE; row++){
+             int index = getIndex( row, col );
+             int value = undoCells.at( index );
+             if ( value == 0 ){
+                 cells.at( index )->setText("");
+             }else{
+                cells.at( index )->setText( QString::number( value ) );
+             }
+         }
+    }
+    this->paintField();
+    emit canUndo(false);
+}
+
+//------------------------ PROTECTED ------------------------------------
 void MainWindow::keyReleaseEvent(QKeyEvent *event)
 {
     qDebug() << Q_FUNC_INFO;
