@@ -32,7 +32,7 @@ void MainWindow::createGameField()
             QLabel *item = new QLabel("");
             item->setAlignment(Qt::AlignCenter);
             item->setStyleSheet("QLabel { background-color: #cdc1b5; color: black; font:20pt; font-weight:400; border-radius: 5px;}");
-            cells.append(item);            
+            cells.append(item);
             undoCells.append(0);
 
             ui->gridGame->addWidget(item,x,y);
@@ -44,7 +44,7 @@ void MainWindow::createGameField()
 
 void MainWindow::addTile()
 {
-    if ( isFindEmptyCell() ){
+    if ( isFindCell("") ){
         bool isSuccessSetTile = false;
         do{
             int index = getRandomIndex();
@@ -107,13 +107,62 @@ int MainWindow::getIndex(int row, int col)
     return col + ( row * FIELD_SIZE ) ;
 }
 
-/**
- * @brief MainWindow::moveCell
- * @param x coordinate new cell
- * @param y coordinate new cell
- * @param x1 coordinate old cell
- * @param y1 coordinate old cell
- */
+void MainWindow::moveCellsHorizontal(bool direction)
+{
+    bool isMoved;
+
+    for (int row = 0;  row <  FIELD_SIZE; row++){
+        do {
+            isMoved = false;
+            if (direction)
+            { // move up
+                for (int col = 0; col < FIELD_SIZE-1; col++){
+                    if (moveCell( row, col, row, col+1 ))
+                    {
+                        isMoved = true;
+                    }
+                }
+            }else
+            { // move down
+                for (int col = FIELD_SIZE-1; col > 0 ; col--){
+                    if (moveCell( row, col, row, col-1 ))
+                    {
+                        isMoved = true;
+                    }
+                }
+            }
+        }while (isMoved);
+    }
+}
+
+void MainWindow::moveCellsVertical(bool direction)
+{
+    bool isMoved;
+
+    for (int col = 0;  col <  FIELD_SIZE; col++){
+        do {
+            isMoved = false;
+            if (direction)
+            { // move up
+                for (int row = 0; row < FIELD_SIZE-1; row++){
+                    if (moveCell( row, col, row+1, col ))
+                    {
+                        isMoved = true;
+                    }
+                }
+            }else
+            { // move down
+                for (int row = FIELD_SIZE-1; row > 0 ; row--){
+                    if (moveCell( row, col, row-1, col ))
+                    {
+                        isMoved = true;
+                    }
+                }
+            }
+        }while (isMoved);
+    }
+}
+
 bool MainWindow::moveCell(int newX,int newY, int oldX,int oldY)
 {
     // qDebug() << "old index: " << getIndex( oldX, oldY ) << "new index: "<< getIndex( newX, newY );
@@ -142,132 +191,40 @@ bool MainWindow::moveCell(int newX,int newY, int oldX,int oldY)
     return isMoved;
 }
 
-bool MainWindow::moveCellInRow(int row,bool direction)
-{
-    bool isMoved = false;
-    if (direction)
-    {
-        // move up
-        for (int col = 0; col < FIELD_SIZE-1; col++){
-            if (moveCell( row, col, row, col+1 ))
-            {
-                isMoved = true;
-            }
-        }
-    }else{
-        // move down
-        for (int col = FIELD_SIZE-1; col > 0 ; col--){
-            if (moveCell( row, col, row, col-1 ))
-            {
-                isMoved = true;
-            }
-        }
-    }
-    return isMoved;
-}
-
-bool MainWindow::moveCellInColumn(int col,bool direction)
-{
-    bool isMoved = false;
-    if (direction)
-    {
-        // move up
-        for (int row = 0; row < FIELD_SIZE-1; row++){
-            if (moveCell( row, col, row+1, col ))
-            {
-                isMoved = true;
-            }
-        }
-    }else{
-        // move down
-        for (int row = FIELD_SIZE-1; row > 0 ; row--){
-            if (moveCell( row, col, row-1, col ))
-            {
-                isMoved = true;
-            }
-        }
-    }
-    return isMoved;
-}
-
 void MainWindow::moveUp()
 {
     printDebugField("move_up");
-    this->saveStateForUndo();
-    emit canUndo(true);
-    for (int col = 0;  col <  FIELD_SIZE; col++){
-        bool isMoved = false;
-        do {
-            isMoved = moveCellInColumn (col, true);
-        }while (isMoved);
-    }
-
-    if (isFindEmptyCell())
-    {
-        this->addTile();
-    }
-    this->paintField();
-
+    saveStateForUndo();
+    moveCellsVertical(true);
+    addTile();
+    paintField();
 }
 
 void MainWindow::moveDown()
 {
     printDebugField("move_down");
-    this->saveStateForUndo();
-    emit canUndo(true);
-    for (int col = 0; col <  FIELD_SIZE; col++){
-        bool isMoved = false;
-        do {
-            isMoved = moveCellInColumn (col, false);
-        }while (isMoved);
-    }
-
-    if (isFindEmptyCell())
-    {
-        this->addTile();
-    }
-    this->paintField();
-
+    saveStateForUndo();
+    moveCellsVertical(false);
+    addTile();
+    paintField();
 }
 
 void MainWindow::moveLeft()
 {
     printDebugField("move_left");
-    this->saveStateForUndo();
-    emit canUndo(true);
-    for (int row = 0;  row <  FIELD_SIZE; row++){
-        bool isMoved = false;
-        do {
-            isMoved = moveCellInRow (row, true);
-        }while (isMoved);
-    }
-
-    if (isFindEmptyCell())
-    {
-        this->addTile();
-    }
-    this->paintField();
-
+    saveStateForUndo();
+    moveCellsHorizontal(true);
+    addTile();
+    paintField();
 }
 
 void MainWindow::moveRigth()
 {
     printDebugField("move_rigth");
-    this->saveStateForUndo();
-    emit canUndo(true);
-    for (int row = 0;  row <  FIELD_SIZE; row++){
-        bool isMoved = false;
-        do {
-            isMoved = moveCellInRow (row, false);
-        }while (isMoved);
-    }
-
-    if (isFindEmptyCell())
-    {
-        this->addTile();
-    }
-    this->paintField();
-
+    saveStateForUndo();
+    moveCellsHorizontal(false);
+    addTile();
+    paintField();
 }
 
 int MainWindow::getRandomIndex()
@@ -296,10 +253,10 @@ void MainWindow::clearGameField()
     }
 }
 
-bool MainWindow::isFindEmptyCell()
+bool MainWindow::isFindCell(QString cType)
 {
     foreach (QLabel *item, cells) {
-        if (item->text() == "")
+        if (item->text() == cType)
         {
             return true;
         }
@@ -320,18 +277,20 @@ void MainWindow::printDebugField(QString direction)
 
 void MainWindow::addScore(int score)
 {
-   mScore += score;
-   emit valueScoreChanged(mScore);
+    mScore += score;
+    emit valueScoreChanged(mScore);
 }
 
 void MainWindow::saveStateForUndo()
 {
     for (int col = 0;  col <  FIELD_SIZE; col++){
-         for (int row = 0;  row <  FIELD_SIZE; row++){
-             int index = getIndex( row, col );
-             undoCells.replace( index, cells.at( index )->text().toInt() );
-         }
+        for (int row = 0;  row <  FIELD_SIZE; row++){
+            int index = getIndex( row, col );
+            undoCells.replace( index, cells.at( index )->text().toInt() );
+        }
     }
+
+    emit canUndo(true);
 }
 
 // ----------------------- PUBLIC SLOTS -----------------------------------
@@ -345,15 +304,15 @@ void MainWindow::startGame()
 void MainWindow::undo()
 {
     for (int col = 0;  col <  FIELD_SIZE; col++){
-         for (int row = 0;  row <  FIELD_SIZE; row++){
-             int index = getIndex( row, col );
-             int value = undoCells.at( index );
-             if ( value == 0 ){
-                 cells.at( index )->setText("");
-             }else{
+        for (int row = 0;  row <  FIELD_SIZE; row++){
+            int index = getIndex( row, col );
+            int value = undoCells.at( index );
+            if ( value == 0 ){
+                cells.at( index )->setText("");
+            }else{
                 cells.at( index )->setText( QString::number( value ) );
-             }
-         }
+            }
+        }
     }
     this->paintField();
     emit canUndo(false);

@@ -50,11 +50,12 @@ private:
     void moveRigth();
     void paintField();
     bool moveCell(int x,int y, int x1,int y1);
-    bool moveCellInColumn(int col,bool direction);
-    bool moveCellInRow(int row,bool direction);
+    void moveCellsHorizontal(bool direction);
+    void moveCellsVertical(bool direction);
+
     void clearGameField();
     QString getTwoInRandomPow();
-    bool isFindEmptyCell();
+    bool isFindCell(QString cType);
     int getRandomIndex();
     int getIndex(int x, int y);
     void printDebugField(QString direction);
