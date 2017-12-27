@@ -8,16 +8,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->statusBar->showMessage("Свайп для передвижения плиток. 2 + 2 = 4. Собери 2048.");
 
-    this->createGameField();
-
-    connect(ui->newGameBtn,SIGNAL(clicked()),this,SLOT(startGame()));
-    connect(this,SIGNAL(valueScoreChanged(int)),ui->scoreCounter,SLOT(display(int)));
-
-    connect(ui->undoStepBtn,SIGNAL(clicked()),this,SLOT(undo()));
-    connect(this,SIGNAL(canUndo(bool)),ui->undoStepBtn,SLOT(setEnabled(bool)));
+    this->createMenuAction();
+    this->createMenus();
+    this->createConnection();
 
     emit canUndo(false);
-
 }
 
 MainWindow::~MainWindow()
@@ -26,10 +21,12 @@ MainWindow::~MainWindow()
 }
 // ----------------------- PRIVATE ----------------------------------------
 
-void MainWindow::createGameField()
+void MainWindow::createGameField(int fsize)
 {
-    for (int x = 0; x < FIELD_SIZE; x++){
-        for (int y = 0; y < FIELD_SIZE; y++){
+    this->fieldsize = fsize;
+
+    for (int x = 0; x < fieldsize; x++){
+        for (int y = 0; y < fieldsize; y++){
             QLabel *item = new QLabel("");
             item->setAlignment(Qt::AlignCenter);
             item->setStyleSheet("QLabel { background-color: #cdc1b5; color: black; font:20pt; font-weight:400; border-radius: 5px;}");
@@ -40,11 +37,30 @@ void MainWindow::createGameField()
         }
     }
     this->mScore = 0;
+}
 
+
+
+void MainWindow::deleteGameField()
+{
+    qDebug() << Q_FUNC_INFO;
+
+    QLayoutItem *child;
+    while ((child = ui->gridGame->takeAt(0)) != 0) {
+        if (QWidget* widget = child->widget())
+        {
+            widget->deleteLater();
+        }
+        delete child;
+    }
+
+    cells.clear();
+    undoCells.clear();
 }
 
 void MainWindow::addTile()
 {
+    qDebug() << Q_FUNC_INFO;
     if ( isFindCell("") ){
         bool isSuccessSetTile = false;
         do{
@@ -105,19 +121,19 @@ void MainWindow::paintField()
 
 int MainWindow::getIndex(int row, int col)
 {
-    return col + ( row * FIELD_SIZE ) ;
+    return col + ( row * fieldsize ) ;
 }
 
 void MainWindow::moveCellsHorizontal(bool direction)
 {
     bool isMoved;
 
-    for (int row = 0;  row <  FIELD_SIZE; row++){
+    for (int row = 0;  row <  fieldsize; row++){
         do {
             isMoved = false;
             if (direction)
             { // move up
-                for (int col = 0; col < FIELD_SIZE-1; col++){
+                for (int col = 0; col < fieldsize-1; col++){
                     if (moveCell( row, col, row, col+1 ))
                     {
                         isMoved = true;
@@ -125,7 +141,7 @@ void MainWindow::moveCellsHorizontal(bool direction)
                 }
             }else
             { // move down
-                for (int col = FIELD_SIZE-1; col > 0 ; col--){
+                for (int col = fieldsize-1; col > 0 ; col--){
                     if (moveCell( row, col, row, col-1 ))
                     {
                         isMoved = true;
@@ -140,12 +156,12 @@ void MainWindow::moveCellsVertical(bool direction)
 {
     bool isMoved;
 
-    for (int col = 0;  col <  FIELD_SIZE; col++){
+    for (int col = 0;  col <  fieldsize; col++){
         do {
             isMoved = false;
             if (direction)
             { // move up
-                for (int row = 0; row < FIELD_SIZE-1; row++){
+                for (int row = 0; row < fieldsize-1; row++){
                     if (moveCell( row, col, row+1, col ))
                     {
                         isMoved = true;
@@ -153,7 +169,7 @@ void MainWindow::moveCellsVertical(bool direction)
                 }
             }else
             { // move down
-                for (int row = FIELD_SIZE-1; row > 0 ; row--){
+                for (int row = fieldsize-1; row > 0 ; row--){
                     if (moveCell( row, col, row-1, col ))
                     {
                         isMoved = true;
@@ -230,12 +246,14 @@ void MainWindow::moveRigth()
 
 int MainWindow::getRandomIndex()
 {
+    qDebug() << Q_FUNC_INFO;
     random();
-    return getIndex ( (rand() % FIELD_SIZE), (rand() % FIELD_SIZE) );
+    return getIndex ( (rand() % fieldsize), (rand() % fieldsize) );
 }
 
 QString MainWindow::getTwoInRandomPow()
 {
+    qDebug() << Q_FUNC_INFO;
     int value = findMaxCell();
     if (value > 2)
     {
@@ -256,15 +274,6 @@ QString MainWindow::getTwoInRandomPow()
     return QString::number((int) pow(2,new_step));
 }
 
-void MainWindow::clearGameField()
-{
-    foreach (QLabel *item, cells) {
-        item->setText("");
-        item->setAlignment(Qt::AlignCenter);
-        item->setStyleSheet("QLabel { background-color: #cdc1b5; color: black; font:20pt; font-weight:400; border-radius: 5px;}");
-    }
-}
-
 bool MainWindow::isFindCell(QString cType)
 {
     foreach (QLabel *item, cells) {
@@ -278,6 +287,7 @@ bool MainWindow::isFindCell(QString cType)
 
 int MainWindow::findMaxCell()
 {
+    qDebug() << Q_FUNC_INFO;
     int value = 0;
     foreach (QLabel *item, cells) {
         if (item->text().toInt() > value)
@@ -291,12 +301,12 @@ int MainWindow::findMaxCell()
 void MainWindow::printDebugField(QString direction)
 {
     qDebug() << direction;
-
-    for (int row = 0;  row <  FIELD_SIZE; row++){
+    /*
+    for (int row = 0;  row <  fieldsize; row++){
         qDebug() << "|"<< cells.at( getIndex( row, 0) )->text() << "|"<< cells.at( getIndex( row, 1) )->text()
                  << "|"<< cells.at( getIndex( row, 2) )->text() << "|"<< cells.at( getIndex( row, 3) )->text();
     }
-
+*/
 }
 
 void MainWindow::addScore(int score)
@@ -307,8 +317,8 @@ void MainWindow::addScore(int score)
 
 void MainWindow::saveStateForUndo()
 {
-    for (int col = 0;  col <  FIELD_SIZE; col++){
-        for (int row = 0;  row <  FIELD_SIZE; row++){
+    for (int col = 0;  col <  fieldsize; col++){
+        for (int row = 0;  row <  fieldsize; row++){
             int index = getIndex( row, col );
             undoCells.replace( index, cells.at( index )->text().toInt() );
         }
@@ -319,16 +329,17 @@ void MainWindow::saveStateForUndo()
 
 // ----------------------- PUBLIC SLOTS -----------------------------------
 void MainWindow::startGame()
-{
-    this->clearGameField();
+{    
+    qDebug() << Q_FUNC_INFO;
+    // this->clearGameField();
     this->addTile();
     this->paintField();
 }
 
 void MainWindow::undo()
 {
-    for (int col = 0;  col <  FIELD_SIZE; col++){
-        for (int row = 0;  row <  FIELD_SIZE; row++){
+    for (int col = 0;  col <  fieldsize; col++){
+        for (int row = 0;  row <  fieldsize; row++){
             int index = getIndex( row, col );
             int value = undoCells.at( index );
             if ( value == 0 ){
@@ -340,6 +351,73 @@ void MainWindow::undo()
     }
     this->paintField();
     emit canUndo(false);
+}
+
+void MainWindow::doNewGame_4x4()
+{
+
+    if ( ui->gridGame->count() != 0) {
+        this->deleteGameField();
+    }
+
+    this->createGameField(4);
+    this->startGame();
+}
+
+void MainWindow::doNewGame_5x5()
+{
+    if ( ui->gridGame->count() != 0) {
+        this->deleteGameField();
+    }
+    this->createGameField(5);
+    this->startGame();
+}
+
+void MainWindow::doNewGame_6x6()
+{
+    if ( ui->gridGame->count() != 0) {
+        this->deleteGameField();
+    }
+    this->createGameField(6);
+    this->startGame();
+}
+
+//----------------------------------- Menu ---------------------------------------------
+void MainWindow::createMenuAction()
+{
+    newGame_4x4 = new QAction (tr("Новая игра 4х4"),this);
+    newGame_4x4->setStatusTip(tr("Запуск новой игры на 4х4"));
+
+    newGame_5x5 = new QAction (tr("Новая игра 5х5"), this);
+    newGame_5x5->setStatusTip(tr("Запуск новой игры на 5х5"));
+
+    newGame_6x6 = new QAction (tr("Новая игра 6х6"),this);
+    newGame_6x6->setStatusTip(tr("Запуск новой игры на 6х6"));
+}
+
+void MainWindow::createMenus()
+{
+    gameMenu = this->menuBar()->addMenu(tr("Игра"));
+    gameMenu->addAction(newGame_4x4);
+    gameMenu->addAction(newGame_5x5);
+    gameMenu->addAction(newGame_6x6);
+}
+
+void MainWindow::createConnection()
+{
+    //--------------------------- connect ui items----------------------------------
+    connect(ui->newGameBtn,SIGNAL(clicked()),this,SLOT(doNewGame_4x4()));
+    connect(ui->undoStepBtn,SIGNAL(clicked()),this,SLOT(undo()));
+
+    //--------------------------- connect Mainwindow items -------------------------
+    connect(this,SIGNAL(canUndo(bool)),ui->undoStepBtn,SLOT(setEnabled(bool)));
+    connect(this,SIGNAL(valueScoreChanged(int)),ui->scoreCounter,SLOT(display(int)));
+
+    //--------------------------- connect menu -------------------------------------
+
+    connect(newGame_4x4,SIGNAL(triggered()),this,SLOT (doNewGame_4x4()));
+    connect(newGame_5x5,SIGNAL(triggered()),this,SLOT (doNewGame_5x5()));
+    connect(newGame_6x6,SIGNAL(triggered()),this,SLOT (doNewGame_6x6()));
 }
 
 //------------------------ PROTECTED ------------------------------------
