@@ -11,6 +11,7 @@
 #include <QDebug>
 #include <QActionGroup>
 #include <math.h>
+#include "engine.h"
 
 namespace Ui {
 class MainWindow;
@@ -31,21 +32,22 @@ public:
     ~MainWindow();
 
 signals:
-    void canUndo(bool state);
+    //void canUndo(bool state);
     void valueScoreChanged(int newValue);
 
 public slots:    
-    void undo();  
+    void undo();
     void doNewGame_4x4();
     void doNewGame_5x5();
     void doNewGame_6x6();
 
 private:
+    Engine * engine;
     Ui::MainWindow *ui;
     QVector <QLabel *> cells;
     QVector <int> undoCells;
     int mScore;
-    int fieldsize;
+
 
     QMenu *gameMenu;
     QMenu *helpMenu;
@@ -79,7 +81,7 @@ private:
     bool isFindCell(QString cType);
     int findMaxCell();
     int getRandomIndex();
-    int getIndex(int x, int y);
+    //int getIndex(int x, int y);
     void printDebugField(QString direction);
     void addScore(int score);
     void saveStateForUndo();
