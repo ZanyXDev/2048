@@ -40,7 +40,7 @@ private:
     Engine * engine;
     Ui::MainWindow *ui;
     QVector <QLabel *> cells;
-    QVector <int> undoCells;
+    //QVector <int> undoCells;
     int mScore;
 
 

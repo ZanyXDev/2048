@@ -14,6 +14,8 @@ class Engine : public QObject
 public:
     explicit Engine(QObject *parent = 0);
 
+    void clearCells();
+
     void setCellValue(int index, int value);
     void addEmptyCellValue();
 

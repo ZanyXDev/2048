@@ -5,11 +5,15 @@ Engine::Engine(QObject *parent) : QObject(parent)
 
 }
 
+void Engine::clearCells()
+{
+    currentCells.clear();
+    undoCells.clear();
+}
 void Engine::setFieldSize(int fsize)
 {
     fieldsize = fsize;
-    currentCells.clear();
-    undoCells.clear();
+  this->clearCells();
 }
 
 int Engine::getFieldSize()

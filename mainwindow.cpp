@@ -57,7 +57,7 @@ void MainWindow::deleteGameField()
     }
 
     cells.clear();
-    undoCells.clear();
+    engine->clearCells();
 }
 
 void MainWindow::addTile()
