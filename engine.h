@@ -5,6 +5,9 @@
 #include <QVector>
 #include <QDebug>
 
+#include <math.h>
+
+
 class Engine : public QObject
 {
     Q_OBJECT
@@ -22,6 +25,8 @@ public:
     int  getIndex(int row, int col);
     int  getRandomIndex();
 
+   QString getTwoInRandomPow();
+
 signals:
     void canUndo(bool state);
 
@@ -29,8 +34,11 @@ public slots:
     void undo();
 
 private:
+    QVector <int> currentCells;
     QVector <int> undoCells;
     int fieldsize;
+
+    int findMaxCell();
 };
 
 #endif // ENGINE_H

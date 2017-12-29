@@ -10,18 +10,13 @@
 #include <QKeyEvent>
 #include <QDebug>
 #include <QActionGroup>
-#include <math.h>
+
 #include "engine.h"
 
 namespace Ui {
 class MainWindow;
 }
 
-
-// @ToDo replace define to setter and getter. Save values to preference? change from menu
-#define FIELD_SIZE 4
-// @ToDo replace define to menu item
-#define MAX_POW 3
 
 class MainWindow : public QMainWindow
 {
@@ -77,10 +72,9 @@ private:
     void moveCellsVertical(bool direction);
 
 
-    QString getTwoInRandomPow();
+
     bool isFindCell(QString cType);
-    int findMaxCell();
-    int getRandomIndex();
+
     //int getIndex(int x, int y);
     void printDebugField(QString direction);
     void addScore(int score);

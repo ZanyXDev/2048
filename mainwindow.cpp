@@ -69,7 +69,7 @@ void MainWindow::addTile()
             int index = engine->getRandomIndex();
             if (cells.at(index)->text() == "" )
             {
-                cells.at(index)->setText(getTwoInRandomPow());
+                cells.at(index)->setText(engine->getTwoInRandomPow());
                 isSuccessSetTile = true;
             }
         } while (!isSuccessSetTile);
@@ -245,28 +245,7 @@ void MainWindow::moveRigth()
 
 
 
-QString MainWindow::getTwoInRandomPow()
-{
-    qDebug() << Q_FUNC_INFO;
-    int value = findMaxCell();
-    if (value > 2)
-    {
-        value = log( value / 2) / log( 2 );
-    }else
-    {
-        value = 3;
-    }
 
-    random();
-    // For select max pow find max number in field, divide on the two and get log2(value)
-    int new_step = rand() % value;
-    if (new_step == 0)
-    {
-        new_step = 1;
-    }
-    qDebug()<< "value:"<< value << "random:"<< pow(2,new_step);
-    return QString::number((int) pow(2,new_step));
-}
 
 bool MainWindow::isFindCell(QString cType)
 {
@@ -279,18 +258,7 @@ bool MainWindow::isFindCell(QString cType)
     return false;
 }
 
-int MainWindow::findMaxCell()
-{
-    qDebug() << Q_FUNC_INFO;
-    int value = 0;
-    foreach (QLabel *item, cells) {
-        if (item->text().toInt() > value)
-        {
-            value = item->text().toInt();
-        }
-    }
-    return value;
-}
+
 
 void MainWindow::printDebugField(QString direction)
 {
